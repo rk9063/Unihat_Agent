@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeOS - Personal AI Operating System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+    <div id="app" class="container mx-auto p-4 max-w-7xl">
+        <!-- Header -->
+        <header class="bg-white rounded-lg shadow-lg p-6 mb-6 border-2 border-gray-200">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="gradient-bg p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707.707m12.728 0l.707.707M6 18l-.707.707m12.728 0l.707.707M12 22h.01M9 19h6a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-gray-800">LifeOS</h1>
+                        <p class="text-xs text-gray-500">Personal AI Operating System</p>
+                    </div>
+                </div>
+
+                <div id="auth-status">
+                    <!-- Logged Out View -->
+                    <div id="logged-out-view">
+                        <button 
+                            onclick="showAuthView(true)"
+                            class="px-6 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all shadow-md font-semibold"
+                        >
+                            Login / Register
+                        </button>
+                    </div>
+                    
+                    <!-- Logged In View -->
+                    <div id="logged-in-view" class="hidden flex items-center gap-3">
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">Welcome back,</p>
+                            <p class="font-semibold text-gray-800" id="logged-in-username"></p>
+                        </div>
+                        <button
+                            onclick="logout()"
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-md"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            
+            <!-- Authentication View -->
+            <div id="auth-view" class="flex flex-col items-center justify-center min-h-[60vh]">
+                <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border-2 border-purple-100">
+                    <h2 id="auth-title" class="text-2xl font-bold mb-6 text-center text-gray-700">Welcome to LifeOS</h2>
+                    
+                    <!-- Error Message -->
+                    <div id="auth-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-red-600 text-sm text-center" id="auth-error-text"></p>
+                    </div>
+                    
+                    <!-- Auth Form -->
+                    <div id="auth-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                            <input
+                                type="text"
+                                id="username-input"
+                                placeholder="Enter username"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
+                                onkeypress="handleAuthKeypress(event)"
+                            />
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input
+                                type="password"
+                                id="password-input"
+                                placeholder="Enter password"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
+                                onkeypress="handleAuthKeypress(event)"
+                            />
+                        </div>
+
+                        <button
+                            id="auth-submit-button"
+                            onclick="attemptLogin()"
+                            class="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all shadow-md"
+                        >
+                            Login
+                        </button>
+                        
+                        <div class="text-center pt-2">
+                            <p class="text-sm text-gray-500">
+                                <span id="auth-toggle-text">Don't have an account?</span>
+                                <button
+                                    id="auth-toggle-button"
+                                    onclick="toggleAuthMode()"
+                                    class="text-purple-600 font-semibold hover:text-purple-800 transition-colors focus:outline-none ml-1"
+                                >
+                                    Register here
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="hidden">
+                <div class="mb-6 text-center">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Choose Your AI Agent</h2>
+                    <p class="text-gray-600">Select an agent to start your personalized AI experience</p>
+                </div>
+                <div id="agent-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Agent cards will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Agent Chat View -->
+            <div id="agent-view" class="hidden bg-white rounded-lg shadow-xl border-2 border-gray-200">
+                <div class="p-6">
+                    <!-- Agent Header -->
+                    <div class="flex items-center justify-between border-b-2 pb-4 mb-4">
+                        <div class="flex items-center gap-4">
+                            <button 
+                                onclick="showDashboard()" 
+                                class="text-gray-500 hover:text-gray-800 transition-colors p-2 rounded-lg hover:bg-gray-100"
+                                title="Back to dashboard"
+                            >
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                            </button>
+                            <div>
+                                <h3 id="current-agent-name" class="text-xl font-bold text-gray-800"></h3>
+                                <p id="current-agent-description" class="text-sm text-gray-500"></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
+                            <button 
+                                onclick="document.getElementById('file-input').click()" 
+                                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+                                title="Upload file"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                <span class="hidden sm:inline">Upload</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages -->
+                    <div id="chat-messages" class="h-[60vh] overflow-y-auto space-y-3 pr-2 mb-4">
+                        <!-- Messages will be dynamically added here -->
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="border-t-2 border-gray-200 pt-4">
+                        <div class="flex gap-2">
+                            <input
+                                type="text"
+                                id="chat-input"
+                                placeholder="Ask your AI agent anything..."
+                                class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                                onkeypress="handleChatKeypress(event)"
+                            />
+                            <button
+                                onclick="sendMessage()"
+                                class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold shadow-md"
+                            >
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-sm text-gray-600">
+            <p class="font-semibold">LifeOS v2.0 - Production Ready</p>
+            <p class="text-xs mt-1">
+                Powered by Multi-Agent AI • LangChain • Secure Authentication • CNN Integration
+            </p>
+            <p class="text-xs mt-1 text-gray-400">
+                🔒 All data encrypted • Multi-user support • JWT Authentication
+            </p>
+        </footer>
+    </div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>
